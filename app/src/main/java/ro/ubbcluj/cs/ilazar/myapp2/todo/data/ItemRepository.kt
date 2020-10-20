@@ -1,46 +1,57 @@
 package ro.ubbcluj.cs.ilazar.myapp2.todo.data
 
-import android.util.Log
-import ro.ubbcluj.cs.ilazar.myapp2.core.TAG
+import ro.ubbcluj.cs.ilazar.myapp2.core.Result
 import ro.ubbcluj.cs.ilazar.myapp2.todo.data.remote.ItemApi
 
 object ItemRepository {
     private var cachedItems: MutableList<Item>? = null;
 
-    suspend fun loadAll(): List<Item> {
-        Log.i(TAG, "loadAll")
+    suspend fun loadAll(): Result<List<Item>> {
         if (cachedItems != null) {
-            return cachedItems as List<Item>;
+            return Result.Success(cachedItems as List<Item>);
         }
-        cachedItems = mutableListOf()
-        val items = ItemApi.service.find()
-        cachedItems?.addAll(items)
-        return cachedItems as List<Item>
+        try {
+            val items = ItemApi.service.find()
+            cachedItems = mutableListOf()
+            cachedItems?.addAll(items)
+            return Result.Success(cachedItems as List<Item>)
+        } catch (e: Exception) {
+            return Result.Error(e)
+        }
     }
 
-    suspend fun load(itemId: String): Item {
-        Log.i(TAG, "load")
-        val item = cachedItems?.find { it.id == itemId }
+    suspend fun load(itemId: String): Result<Item> {
+        val item = cachedItems?.find { it._id == itemId }
         if (item != null) {
-            return item
+            return Result.Success(item)
         }
-        return ItemApi.service.read(itemId)
+        try {
+            return Result.Success(ItemApi.service.read(itemId))
+        } catch (e: Exception) {
+            return Result.Error(e)
+        }
     }
 
-    suspend fun save(item: Item): Item {
-        Log.i(TAG, "save")
-        val createdItem = ItemApi.service.create(item)
-        cachedItems?.add(createdItem)
-        return createdItem
+    suspend fun save(item: Item): Result<Item> {
+        try {
+            val createdItem = ItemApi.service.create(item)
+            cachedItems?.add(createdItem)
+            return Result.Success(createdItem)
+        } catch (e: Exception) {
+            return Result.Error(e)
+        }
     }
 
-    suspend fun update(item: Item): Item {
-        Log.i(TAG, "update")
-        val updatedItem = ItemApi.service.update(item.id, item)
-        val index = cachedItems?.indexOfFirst { it.id == item.id }
-        if (index != null) {
-            cachedItems?.set(index, updatedItem)
+    suspend fun update(item: Item): Result<Item> {
+        try {
+            val updatedItem = ItemApi.service.update(item._id, item)
+            val index = cachedItems?.indexOfFirst { it._id == item._id }
+            if (index != null) {
+                cachedItems?.set(index, updatedItem)
+            }
+            return Result.Success(updatedItem)
+        } catch (e: Exception) {
+            return Result.Error(e)
         }
-        return updatedItem
     }
 }

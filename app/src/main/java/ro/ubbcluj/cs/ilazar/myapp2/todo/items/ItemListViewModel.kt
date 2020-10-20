@@ -6,9 +6,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import ro.ubbcluj.cs.ilazar.myapp2.todo.data.ItemRepository
+import ro.ubbcluj.cs.ilazar.myapp2.core.Result
 import ro.ubbcluj.cs.ilazar.myapp2.core.TAG
 import ro.ubbcluj.cs.ilazar.myapp2.todo.data.Item
+import ro.ubbcluj.cs.ilazar.myapp2.todo.data.ItemRepository
 
 class ItemListViewModel : ViewModel() {
     private val mutableItems = MutableLiveData<List<Item>>().apply { value = emptyList() }
@@ -19,27 +20,22 @@ class ItemListViewModel : ViewModel() {
     val loading: LiveData<Boolean> = mutableLoading
     val loadingError: LiveData<Exception> = mutableException
 
-    fun createItem(position: Int): Unit {
-        val list = mutableListOf<Item>()
-        list.addAll(mutableItems.value!!)
-        list.add(Item(position.toString(), "Item " + position))
-        mutableItems.value = list
-    }
-
     fun loadItems() {
         viewModelScope.launch {
             Log.v(TAG, "loadItems...");
             mutableLoading.value = true
             mutableException.value = null
-            try {
-                mutableItems.value = ItemRepository.loadAll()
-                Log.d(TAG, "loadItems succeeded");
-                mutableLoading.value = false
-            } catch (e: Exception) {
-                Log.w(TAG, "loadItems failed", e);
-                mutableException.value = e
-                mutableLoading.value = false
+            when (val result = ItemRepository.loadAll()) {
+                is Result.Success -> {
+                    Log.d(TAG, "loadItems succeeded");
+                    mutableItems.value = result.data
+                }
+                is Result.Error -> {
+                    Log.w(TAG, "loadItems failed", result.exception);
+                    mutableException.value = result.exception
+                }
             }
+            mutableLoading.value = false
         }
     }
 }
