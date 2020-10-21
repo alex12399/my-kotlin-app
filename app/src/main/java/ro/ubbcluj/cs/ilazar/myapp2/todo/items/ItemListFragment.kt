@@ -63,7 +63,7 @@ class ItemListFragment : Fragment() {
                 Toast.makeText(activity, message, Toast.LENGTH_SHORT).show()
             }
         })
-        itemsModel.loadItems()
+        itemsModel.refresh()
     }
 
     override fun onDestroy() {
