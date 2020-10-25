@@ -22,10 +22,10 @@ class ItemListAdapter(
     var items = emptyList<Item>()
         set(value) {
             field = value
-            notifyDataSetChanged();
+            notifyDataSetChanged()
         }
 
-    private var onItemClick: View.OnClickListener;
+    private var onItemClick: View.OnClickListener
 
     init {
         onItemClick = View.OnClickListener { view ->
@@ -47,7 +47,7 @@ class ItemListAdapter(
         Log.v(TAG, "onBindViewHolder $position")
         val item = items[position]
         holder.itemView.tag = item
-        holder.textView.text = item.text
+        holder.textView.text = item.title
         holder.itemView.setOnClickListener(onItemClick)
     }
 

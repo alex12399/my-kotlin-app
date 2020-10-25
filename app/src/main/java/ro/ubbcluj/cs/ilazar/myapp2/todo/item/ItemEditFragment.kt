@@ -50,7 +50,7 @@ class ItemEditFragment : Fragment() {
             Log.v(TAG, "save item")
             val i = item
             if (i != null) {
-                i.text = item_text.text.toString()
+                i.title = item_text.text.toString()
                 viewModel.saveOrUpdateItem(i)
             }
         }
@@ -81,13 +81,13 @@ class ItemEditFragment : Fragment() {
         })
         val id = itemId
         if (id == null) {
-            item = Item("", "")
+            item = Item("", "",0,false,"")
         } else {
             viewModel.getItemById(id).observe(viewLifecycleOwner, {
                 Log.v(TAG, "update items")
                 if (it != null) {
                     item = it
-                    item_text.setText(it.text)
+                    item_text.setText(it.title)
                 }
             })
         }

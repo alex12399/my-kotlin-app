@@ -45,7 +45,7 @@ abstract class TodoDatabase : RoomDatabase() {
                 super.onOpen(db)
                 INSTANCE?.let { database ->
                     scope.launch(Dispatchers.IO) {
-                        populateDatabase(database.itemDao())
+//                        populateDatabase(database.itemDao())
                     }
                 }
             }
@@ -53,7 +53,7 @@ abstract class TodoDatabase : RoomDatabase() {
 
         suspend fun populateDatabase(itemDao: ItemDao) {
             itemDao.deleteAll()
-            val item = Item("1", "Hello")
+            val item = Item("1", "Hello",0,false,"")
             itemDao.insert(item)
         }
     }
